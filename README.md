@@ -4,7 +4,9 @@
 # GPIO Ambient Light Sensor
 
 This module for the Linux kernel allows measuring ambient light intensity with
-just a light dependent resistor (LDR) and a capacitor.
+just a light dependent resistor (LDR) and a capacitor. A user space daemon to
+make use of this kernel module is available in a separate repository:
+[alsd](https://github.com/axkg/alsd).
 
 The following schematic shows how the LDR (L) and the capacitor (C) are
 connected to the Pi:
@@ -41,23 +43,26 @@ space to reduce the jitter. Note that
 the second part (timestamping the interrupt) but not the timestamping of
 switching the GPIO port direction.
 
-## Building the module
+## Building the Module
 
 Building the kernel module should be straight forward: Install the headers that
 match the kernel currently running on the Raspberry Pi (on Raspbian installing
 the matching `raspberrypi-kernel-headers` should be sufficient) and run `make`.
 
-## Loading the module
+## Loading the Module
 
 The GPIO pin to be used can be configured via the module parameter
 `gpioals_gpio_pin`, by default pin `10` will be used.
 
-## Userspace interface
+## User Space Interface
+
+*Note*: A simple, exemplary implementation of the user space interface in Rust
+is available with [alsd](https://github.com/axkg/alsd).
 
 When the module is loaded, udev should automatically create a `/dev/gpioals`
 character device. Currently only one process is allowed to open the device.
 
-### Writing to the device
+### Writing to the Device
 
 A user space process needs to open the device with read and write access, as
 currently gpioals expects user space to trigger measurements. Commands are sent
@@ -71,7 +76,7 @@ supported:
 | 2    | MEASURE    | Switch the GPIO port back to input and wait for the interrupt and complete the measurement |
 | 3    | STATISTICS | Will trigger the module to `printk()` some internal counters for debugging                 |
 
-### Reading events from the device
+### Reading Events from the Device
 
 The device will allow reading multiples of 16 bytes only. 16 bytes is the
 minimum as single measurement holds two 64bit integers:
@@ -81,11 +86,11 @@ minimum as single measurement holds two 64bit integers:
 |  0-63  | `ktime_t` timestamp when the measurement was taken                           |
 | 64-127 | Time delta in nanoseconds from the flipping of the GPIO pin to the interrupt | 
 
-## Interpreting the measurements
+## Interpreting Measurements
 
 The shorter the measured time delta is, the more light should have been detected
 by the LDR. The actual timing depends on the actual LDR and capacitator used. If
 the environment is too dark, the interrupt will not trigger within the
-observation time, alas no measurement will be available. So if userspace is
+observation time, alas no measurement will be available. So if user space is
 triggering measurements but not reading any measurements, one should assume that
 it is too dark for the "sensor" to measure.
