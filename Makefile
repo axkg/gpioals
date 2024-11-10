@@ -6,3 +6,6 @@ all:
  
 clean:
 	make -C $(KDIR) M=$(shell pwd) clean
+
+install:
+	make -C $(KDIR) M=$(shell pwd) modules_install

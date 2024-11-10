@@ -49,6 +49,12 @@ Building the kernel module should be straight forward: Install the headers that
 match the kernel currently running on the Raspberry Pi (on Raspbian installing
 the matching `raspberrypi-kernel-headers` should be sufficient) and run `make`.
 
+## Installing the Moduile
+
+A standard `make install` (either as root or via sudo) should be sufficient. Note
+that as with any kernel module, recompiling and reinstalling gpioals will be
+necessary whenever a new kernel is installed.
+
 ## Loading the Module
 
 The GPIO pin to be used can be configured via the module parameter
